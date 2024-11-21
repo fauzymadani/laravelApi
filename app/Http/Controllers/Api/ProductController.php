@@ -51,15 +51,46 @@ class ProductController extends Controller
         ], 200);
     }
 
-    public function show(){
-        // 
+    public function show(Product $product){
+        return new ProductResource($product); 
     }
 
-    public function update(){
-        // 
+    public function update(Request $request, Product $product){
+
+        $validator = Validator::make($request->all(),[
+            'name' => 'required|string|max:255',
+            'description' => 'required',
+            'price' => 'required|integer',
+        ]);
+
+        if($validator->fails()){
+            return response()->json([
+                'message' => 'All field are mandetory',
+                'error' => $validator->messages(),
+            ], 422);
+        }
+        // $request->validate([
+            
+        // ]);
+
+        $product->update([
+            'name' => $request->name,
+            'description' => $request->description,
+            'price' => $request->price,
+        ]);
+
+        return response()->json([
+            'message' => 'Product Updated successfully',
+            'data' => new ProductResource($product),
+        ], 200);
+        
     }
 
-    public function destroy(){
-        // 
+    public function destroy(Product $product){
+        $product->delete();
+        //show responses
+        return response()->json([
+            'message' => 'Product deleted successfully',
+        ], 200);
     }
 }
